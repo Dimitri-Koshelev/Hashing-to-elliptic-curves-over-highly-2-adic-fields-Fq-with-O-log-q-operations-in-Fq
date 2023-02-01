@@ -1,0 +1,438 @@
+// Section 2: The exceptional quotient map of degree 3 and the corresponding cubic (in x) polynomials
+F := Rationals();
+F<alp,v> := FunctionField(F, 2);
+f6 := 27*(1 + 2*alp);
+f4 := 27*(1 - 10*alp)*v;
+f2 := 9*(1 + 10*alp)*v^2;
+f0 := (1 - 2*alp)*v^3;
+F<x0> := FunctionField(F);
+PR<t> := PolynomialRing(F);
+F<y0> := ext<F | t^2 - (f6*x0^2 + f0/v^2) >;
+
+A1 := AffineSpace(F, 1);
+A2y<x,y> := AffinePlane(F);
+f := f6*x^6 + f4*x^4 + f2*x^2 + f0;
+H := Curve(A2y, y^2 - f);
+C := Curve(A2y, y^2 - (f6*x^2 + f0/v^2) );
+psi := map<H -> C | [x*(x^2 - v)/(9*x^2 - v), y/(9*x^2 - v)]>;
+Psi := ProjectiveClosure(psi);
+assert( Degree(Psi) eq 3 );
+prP0 := map<C -> A1 | [ (x - x0)/(y - y0) ]>;
+
+A2t<X,t> := AffinePlane(F);
+rho3 := f6*t^2 - 1;
+rho2 := 9*(f6*x0*t^2 - 2*y0*t + x0);
+rho1 := -v*rho3;
+rho0 := -v*rho2/9;
+rho := rho3*X^3 + rho2*X^2 + rho1*X + rho0;
+K := Curve(A2t, rho);
+
+T := ( x*(x^2 - v) - x0*(9*x^2 - v) )/( y - y0*(9*x^2 - v) );
+Y := ( X*(X^2 - v) + (t*y0 - x0)*(9*X^2 - v) )/t;
+assert( psi*prP0 eq map<H -> A1 | [T]> );
+chi := map<H -> K | [x, T]>;
+chinv := map<K -> H | [X, Y]>;
+assert( chi*chinv eq IdentityMap(H) );
+assert( chinv*chi eq IdentityMap(K) );
+
+d0 := rho0/rho3; d1 := rho1/rho3; d2 := rho2/rho3;
+rho1Hat := d1 - d2^2/3;
+rho0Hat := d0 - d1*d2/3 + 2*d2^3/27;
+Delta := -2^4*(4*rho1Hat^3 + 27*rho0Hat^2);
+num := v^2*f6^2*(27*x0^2 + v)*t^4 - 108*v^2*f6*x0*y0*t^3 + 2*(81*f6*v^2*x0^2 + 54*f0 -
+        f6*v^3)*t^2 - 108*v^2*x0*y0*t + v^2*(27*x0^2 + v);
+D := 8*num/(v*rho3)^2;
+assert(Delta eq v*D^2);
+
+c3 := rho3^3;
+c1 := rho1*rho3^2 - rho2^2*rho3/3;
+c0 := rho0*rho3^2 - rho1*rho2*rho3/3 + 2*rho2^3/27;
+assert(c1/c3 eq rho1Hat);
+assert(c0/c3 eq rho0Hat);
+KHat := Curve(A2t, c3*X^3 + c1*X + c0);
+eta := map<K -> KHat | [X + d2/3, t]>;
+etainv := map<KHat -> K | [X - d2/3, t]>;
+
+
+
+
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
+
+
+// Section 2: The quadratic covers to elliptic curves and the 3-isogeny
+F := Rationals();
+F<alp,v> := FunctionField(F, 2);
+
+A2<x,y> := AffinePlane(F);
+f6 := 27*(1 + 2*alp);
+f4 := 27*(1 - 10*alp)*v;
+f2 := 9*(1 + 10*alp)*v^2;
+f0 := (1 - 2*alp)*v^3;
+f := f6*x^6 + f4*x^4 + f2*x^2 + f0;
+H := Curve(A2, y^2 - f);
+
+gp3 := f6; gp2 := f4; gp1 := f2; gp0 := f0;
+gm3 := f0; gm2 := f2; gm1 := f4; gm0 := f6;
+gp := gp3*x^3 + gp2*x^2 + gp1*x + gp0;
+gm := gm3*x^3 + gm2*x^2 + gm1*x + gm0;
+Ep := Curve(A2, y^2 - gp);
+Em := Curve(A2, y^2 - gm);
+varPhip := map<H -> Ep | [x^2, y]>;
+varPhim := map<H -> Em | [1/x^2, y/x^3]>;
+
+gp2Hat := gp2; gp1Hat := gp1*gp3; gp0Hat := gp0*gp3^2;
+gm2Hat := gm2; gm1Hat := gm1*gm3; gm0Hat := gm0*gm3^2;
+gpHat := x^3 + gp2Hat*x^2 + gp1Hat*x + gp0Hat;
+gmHat := x^3 + gm2Hat*x^2 + gm1Hat*x + gm0Hat;
+EpHat := Curve(A2, y^2 - gpHat);
+EmHat := Curve(A2, y^2 - gmHat);
+zetap := map<Ep -> EpHat | [gp3*x, gp3*y]>;
+zetam := map<Em -> EmHat | [gm3*x, gm3*y]>;
+
+hp1 := gp1Hat - gp2Hat^2/3;
+hp0 := gp0Hat - gp1Hat*gp2Hat/3 + 2*gp2Hat^3/27;
+hm1 := gm1Hat - gm2Hat^2/3;
+hm0 := gm0Hat - gm1Hat*gm2Hat/3 + 2*gm2Hat^3/27;
+hp := x^3 + hp1*x + hp0;
+hm := x^3 + hm1*x + hm0;
+Wp := Curve(A2, y^2 - hp);
+Wm := Curve(A2, y^2 - hm);
+phip := map<EpHat -> Wp | [x + gp2Hat/3, y]>;
+phim := map<EmHat -> Wm | [x + gm2Hat/3, y]>;
+
+hp1Hat := 3*(2 - 5*alp)*alp;
+hp0Hat := -(1 - 14*alp + 22*alp^2)*alp;
+hm1Hat := -27*(2 + 5*alp)*alp;
+hm0Hat := 27*(1 + 14*alp + 22*alp^2)*alp;
+hpHat := x^3 + hp1Hat*x + hp0Hat;
+hmHat := x^3 + hm1Hat*x + hm0Hat;
+WpHat := Curve(A2, v*y^2 - hpHat);
+WmHat := Curve(A2, y^2 - hmHat);
+thetap := map<Wp -> WpHat | [x/(6^2*v), y/(6^3*v^2)]>;
+thetam := map<Wm -> WmHat | [x/(2*v)^2, y/(2*v)^3]>;
+
+Deltap := -16*(4*hp1Hat^3 + 27*hp0Hat^2);
+Deltam := -16*(4*hm1Hat^3 + 27*hm0Hat^2);
+Deltap eq 2^4*3^3*(2*alp - 1)*(2*alp + 1)^3*alp^2; 
+Deltam eq 2^4*3^9*(2*alp - 1)^3*(2*alp + 1)*alp^2;
+jp := -1728*64*hp1Hat^3/Deltap;
+jm := -1728*64*hm1Hat^3/Deltam;
+jp eq 2^8*3^3*alp*(2 - 5*alp)^3 /( (1 - 2*alp)*(1 + 2*alp)^3 );
+jm eq -2^8*3^3*alp*(2 + 5*alp)^3 /( (1 + 2*alp)*(1 - 2*alp)^3 );
+
+varPhipPr := varPhip*zetap*phip*thetap;
+varPhimPr := varPhim*zetam*phim*thetam;
+varPhipPr eq map<H -> WpHat | [
+    ( 3*(1 + 2*alp)*x^2 + (1 - 10*alp)*v )/(4*v),
+    (1 + 2*alp)*y/(8*v^2) ]>;
+varPhimPr eq map<H -> WmHat | [
+    ( 3*(1 + 10*alp)*x^2  + (1 - 2*alp)*v )/(4*x^2),
+    (1 - 2*alp)*y/(8*x^3) ]>;
+
+WT := Curve(A2, y^2 - hpHat);
+Wpr := WmHat;
+numx := x^3 - 18*alp*x^2 - 27*(4 - 11*alp)*alp*x + 108*(1 + 5*alp - 14*alp^2)*alp;
+numy := x^3 - 27*alp*x^2 + 27*(4 + alp)*alp*x - 27*(8 + 4*alp - 13*alp^2)*alp;
+delta := map<Wpr -> WT | [
+    numx/ (9*(x - 9*alp)^2), 
+    numy*y/ (27*(x - 9*alp)^3) ]>;
+	
+	
+
+
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
+
+
+// Parametrization of the modular curve M3 and its inverse map
+F := Rationals();
+PR<t> := PolynomialRing(F);
+F<s2,s5> := NumberField([t^2 - 2, t^2 - 5]);
+A1<alp> := AffineSpace(F, 1);
+A2<x,y> := AffinePlane(F);
+
+Phi3 := ClassicalModularPolynomial(3);
+Phi3;
+Factorization( Evaluate(Phi3, 1, y) );
+Factorization( Evaluate(Phi3, 1, 0) );
+Factorization( Evaluate(Phi3, 1, 1728) );
+printf"\n";
+
+
+///////////////////////////////
+
+
+M3 := Curve(A2, Phi3);
+Sing := ReducedSubscheme(SingularSubscheme(M3));
+Ps := Points(Sing);
+Ps; #Ps;
+assert( Degree(Sing) eq #Ps );
+
+for P in Ps do
+    j := P[1];
+    E := EllipticCurveFromjInvariant(j);
+    HasComplexMultiplication(E);
+end for;
+j12 := 2^4*3^3*5^3;
+E := EllipticCurveFromjInvariant(j12);
+HasComplexMultiplication(E);
+printf"\n";
+
+
+///////////////////////////////
+
+
+jp := 2^8*3^3*alp*(2 - 5*alp)^3 /( (1 - 2*alp)*(1 + 2*alp)^3 );
+jm := -2^8*3^3*alp*(2 + 5*alp)^3 /( (1 + 2*alp)*(1 - 2*alp)^3 );
+par := map<A1 -> M3 | [jp, jm]>;
+_, pi := IsInvertible(par);
+pi;
+printf"\n";
+
+
+////////////////////////////////
+
+
+// Determining the subsets S1, S2
+BSpar := ReducedSubscheme(BaseScheme(par));
+BSpi := ReducedSubscheme(BaseScheme(pi));
+assert( BSpar eq Scheme(A1, alp^2 - 1/4) ); 
+P12 := Cluster(A2 ! [j12, j12]);
+assert( BSpi eq (Sing join P12) );
+
+PBpiBSpar := Pullback(pi, BaseScheme(par));
+PBpiBSpar := ReducedSubscheme(PBpiBSpar);
+assert( Sing eq PBpiBSpar );
+
+PBparBSpi := Pullback(par, BaseScheme(pi));
+PBparBSpi := ReducedSubscheme(PBparBSpi);
+IrreducibleComponents(PBparBSpi);
+Degree(PBparBSpi);
+
+PBparSing := Pullback(par, SingularSubscheme(M3));
+PBparSing := ReducedSubscheme(PBparSing);
+assert( PBparBSpi eq PBparSing );
+
+
+
+
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
+
+
+// Finding the unique Fq-root (through the full Lucas sequences) 
+// of a cubic polynomial whose discriminant is a quadratic non-residue in Fq
+
+SisterLucasSequences := function(n, a, b)
+    assert(n gt 0);
+    Ui := 1;
+    Uim1 := 0;
+    Vi := a;
+    Vim1 := 2;
+
+    for i := 1 to n-1 do
+        Uip1 := a*Ui - b*Uim1;
+        Uim1 := Ui;
+        Ui := Uip1;
+        Vip1 := a*Vi - b*Vim1;
+        Vim1 := Vi;
+        Vi := Vip1;
+    end for;
+    return Ui, Vi;
+end function;
+
+
+/////////////////////////////////////////
+
+
+JoyeQuisquaterKoval := function(n, a, b)
+    assert(n gt 0);
+    bits := Intseq(n, 2);
+    l := #bits;
+    v := Valuation(n, 2);
+    Vl := 2;
+    Vh := a;
+    Ql := 1;
+    Qh := 1;
+
+    for i := l-1 to v by -1 do
+        Ql := Ql*Qh;
+        if bits[i+1] eq 1 then
+            Qh := b*Ql;
+            Vl := Vh*Vl - a*Ql;
+            Vh := Vh^2 - 2*Qh;
+        else
+            Qh := Ql;
+            Vh := Vh*Vl - a*Ql;
+            Vl := Vl^2 - 2*Ql;
+        end if;
+    end for;
+
+    Ql := Ql*Qh;
+    D := a^2 - 4*b;
+    Uh := (2*Vh - a*Vl)/D;
+
+    for i := 1 to v do
+        Uh := Uh*Vl;
+        Vl := Vl^2 - 2*Ql;
+        Ql := Ql^2; 
+    end for;
+    return Uh, Vl;
+end function;
+
+
+/////////////////////////////////////////
+
+
+// Main
+Primes := PrimesInInterval(1000, 100000);
+while true do
+    q := Random(Primes);
+    F := GF(q);
+    c0 := Random(F);
+    c1 := Random(F);
+    Delta := -16*(4*c1^3 + 27*c0^2);
+    if not IsSquare(Delta) then
+        break;
+    end if;
+end while;
+a := -27*c0;
+b := -27*c1^3;
+if (q mod 3) eq 1 then
+    n := (q+2) div 3;
+else
+    n := (q-2) div 3;
+end if;
+
+Unm1, Vnm1 := SisterLucasSequences(n-1, a, b);
+Unm1Pr, Vnm1Pr := JoyeQuisquaterKoval(n-1, a, b);
+assert(Unm1 eq Unm1Pr);
+assert(Vnm1 eq Vnm1Pr);
+D := a^2 - 4*b;
+Vn := (a*Vnm1 + D*Unm1)/2;
+
+if (q mod 3) eq 1 then
+    r := -Vn/(9*c1);
+else
+    r := -c1*Vn;
+end if;
+assert(r^3 + c1*r + c0 eq 0);
+
+
+
+
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
+
+
+// The curves from Table 1
+// Pasta curves
+q := 0x40000000000000000000000000000000224698fc094cf91b992d30ed00000001; // Pallas
+r := 0x40000000000000000000000000000000224698fc0994a8dd8c46eb2100000001; // Vesta
+// R := r; r := q; q := R;
+a := 0;
+b := 5;
+
+// BN382-Plain curves
+x := 2^94 + 2^81 + 2^74 + 2^66; 
+q := 36*x^4 + 36*x^3 + 24*x^2 + 6*x + 1;
+r := 36*x^4 + 36*x^3 + 18*x^2 + 6*x + 1;
+a := 0;
+b := 14; // BN382
+// R := r; r := q; q := R;   b := 7; // Plain 
+
+// NIST P-224
+q := 0xffffffffffffffffffffffffffffffff000000000000000000000001;
+r := 0xffffffffffffffffffffffffffff16a2e0b8f03e13dd29455c5c2a3d;
+a := -3;
+b := 0xb4050a850c04b3abf54132565044b0b7d7bfd8ba270b39432355ffb4;
+
+
+///////////////////////////////
+
+
+// Derived numerical parameters
+assert(IsPrime(q));
+assert(IsPrime(r));
+l := Ceiling(Log(2, q));
+v := Valuation(q-1, 2);
+assert(q mod 3 eq 1);
+
+wq := 0;
+bits := Intseq(q, 2);
+for bit in bits do 
+    if bit eq 1 then
+        wq := wq + 1;
+    end if;
+end for;
+
+wn := 0;
+n := (q+2) div 3;
+bits := Intseq(n, 2);
+for bit in bits do 
+    if bit eq 1 then
+        wn := wn + 1;
+    end if;
+end for;
+
+[l, v, wq, wn];
+TS := l + wq + v*(v+1)/2;
+JQK := 4*l + wn - v;
+[TS, 2*TS, JQK, 2*JQK];
+c := wq - wn - 3*l;
+v gt (-3 + Sqrt(9 - 8*c))/2;
+printf"\n";
+
+
+////////////////////////////
+
+
+F := GF(q);
+a := F ! a;
+b := F ! b;
+E := EllipticCurve([a, b]);
+j := jInvariant(E);
+assert(Order(E) eq r);
+t := q + 1 - r;
+DCM := SquarefreeFactorization(t^2 - 4*q);
+if (DCM mod 4) ne 1 then
+    DCM := 4*DCM;
+end if;
+DCM; Log(2, -DCM);
+printf"\n";
+
+
+//////////////////////////////
+
+
+// Applicability of the new hash function
+psi3<x> := DivisionPolynomial(E, 3);
+assert(psi3 eq 3*x^4 + 6*a*x^2 + 12*b*x - a^2);
+Roots(psi3); // A non-zero Fq-root has to exist
+PR<alp> := PolynomialRing(F);
+poly := j*( (1 - 2*alp)*(1 + 2*alp)^3 ) - 2^8*3^3*alp*(2 - 5*alp)^3;
+Roots(poly); // A non-zero Fq-root has to exist
+
+// Applicability of SwiftEC
+D := -16*(4*a^3 + 27*b^2);
+_, s := IsSquare(-3*D);
+vp := (-b + s/36)/2;
+vm := (-b - s/36)/2;
+IsSquare(vp) or IsSquare(vm); 
